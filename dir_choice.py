@@ -1,66 +1,92 @@
 import tkinter
 
-#関数設定
-cur_dir = "documents"
+class DirChoice:
+    def choice_mode(self):
+        self.dialog.place(x=10, y=10)
+        self.canvas.delete("all")
+        self.canvas.create_rectangle(0, 0, 620, 434, fill="blue")
+        self.canvas.create_image(310, 200, image=self.img)
+
+    #イベント設定
+    def dirMove_click(self, add_dir):
+        global cur_dir
+        self.cur_dir = self.cur_dir + "/" + add_dir
+        self.directory["text"] = self.cur_dir
+
+    def dirReset_click(self):
+        global cur_dir
+        self.cur_dir = "/Users/take/Documents"
+        self.directory["text"] = self.cur_dir
+    
+    def dirBack_click(self):
+        global cur_dir
+        dir_sprit = self.cur_dir.rsplit('/', 1)
+        self.cur_dir = dir_sprit[0]
+        self.directory["text"] = self.cur_dir
+
+    def upload_click(self):
+        global cur_dir, img
+        self.canvas.delete("all")
+        self.canvas.create_rectangle(0, 0, 620, 434, fill="black")
+        self.img = tkinter.PhotoImage(file = self.cur_dir)
+        self.canvas.create_image(320, 240, image = self.img)
+
+    def __init__(self):
+            
+        #関数設定
+        self.cur_dir = "/Users/take/Documents"
+
+        # ウインドウを作る
+        self.dialog = tkinter.Frame(width=600, height=440)
+        self.dialog.place(x=10, y=10)
+
+        # # キャンバス設定
+        self.canvas = tkinter.Canvas(self.dialog, width = 580, height = 400)
+        self.canvas.place(x=0, y=0)
+        self.canvas.create_rectangle(0, 0, 540, 380, fill='blue')
+        self.img = tkinter.PhotoImage(file = "chap4-1-1.png")
+        self.canvas.create_image(310, 200, image=self.img)
+
+        # #テキスト表示
+        self.question = tkinter.Label(self.dialog, text = "ディレクトリ先を入力してください", bg="white")
+        self.question.place(x=100, y=40)
+
+        # #テキストボックス表示
+        self.entry = tkinter.Entry(self.dialog, width=12, bd=4)
+        self.entry.place(x=100, y=133)
+
+        # #移動ボタン表示
+        self.dirMove_button = tkinter.Button(self.dialog, text = "移動")
+        self.dirMove_button.place(x=310, y=133)
+        self.dirMove_button["command"] = lambda : self.dirMove_click(self.entry.get())
+        #リセットボタン表示
+        self.dirReset_button = tkinter.Button(self.dialog, text = "リセット")
+        self.dirReset_button.place(x=410, y=133)
+        self.dirReset_button["command"] = self.dirReset_click
+        #バックボタン表示
+        self.dirBack_button = tkinter.Button(self.dialog, text = "バック")
+        self.dirBack_button.place(x=310, y=183)
+        self.dirBack_button["command"] = self.dirBack_click
+        #画像表示ボタン
+        self.upload_button = tkinter.Button(self.dialog, text = "表示")
+        self.upload_button.place(x=410, y=183)
+        self.upload_button["command"] = self.upload_click
 
 
-#イベント設定
-def dirMove_click(add_dir):
-    global cur_dir
-    cur_dir = cur_dir + "/" + add_dir
-    answer["text"] = cur_dir
+        #現在のディレクトリ表示
+        self.directory = tkinter.Label(self.dialog, text = "...", bg="white")
+        self.directory.place(x=100, y=235)
 
-def dirReset_click():
-    global cur_dir
-    cur_dir = "documents"
-    answer["text"] = cur_dir
+        #非表示
+        self.dialog.place_forget()
 
-def upload_click():
-    global cur_dir, img
-    canvas.delete("all")
-    canvas.create_rectangle(0, 0, 620, 434, fill="black")
-    img = tkinter.PhotoImage(file = cur_dir)
-    canvas.create_image(320, 240, image=img)
+if __name__ == '__main__':
+    root = tkinter.Tk()
+    root.title("data segmentar")
+    root.minsize(880, 480)
+    root.option_add("*font", ["MS Pゴシック", 22])
 
-# ウインドウを作る
-root = tkinter.Tk()
-root.title("data segmentar")
-root.minsize(880, 480)
-root.option_add("*font", ["MS Pゴシック", 22])
+    dirchoice = DirChoice()
+    dirchoice.choice_mode()
 
-# キャンバス設定
-canvas = tkinter.Canvas(bg = "black", width = 640, height = 480)
-canvas.place(x=0, y=0)
-img = tkinter.PhotoImage(file = "documents/segmentation_tool/chap4-1-1.png")
-
-#テキスト表示
-question = tkinter.Label(text = "ディレクトリ先を入力してください", bg="white")
-question.place(x=100, y=40)
-
-#テキストボックス表示
-entry = tkinter.Entry(width=12, bd=4)
-entry.place(x=100, y=133)
-
-#移動ボタン表示
-dirMove_button = tkinter.Button(text = "移動")
-dirMove_button.place(x=310, y=133)
-dirMove_button["command"] = lambda : dirMove_click(entry.get())
-#リセットボタン表示
-dirReset_button = tkinter.Button(text = "リセット")
-dirReset_button.place(x=410, y=133)
-dirReset_button["command"] = dirReset_click
-#画像表示ボタン
-upload_button = tkinter.Button(text = "表示")
-upload_button.place(x=410, y=183)
-upload_button["command"] = upload_click
-
-
-#現在のディレクトリ表示
-answer = tkinter.Label(text = "...", bg="white")
-answer.place(x=100, y=235)
-
-
-
-
-# ウインドウを表示する
-root.mainloop()
+    root.mainloop()
