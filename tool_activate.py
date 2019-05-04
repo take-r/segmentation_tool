@@ -1,35 +1,47 @@
 import tkinter
 import dir_select
+import contour
 
 #イベント設定
 def dir_mode():
-    global img
+    global img, file_path
     file_path = dirselect.select_mode()
-    img = tkinter.PhotoImage(file = file_path)
-    canvas.create_image(310, 200, image = img)
+
+# セグメントモード
+def contour_mode():
+    cont = contour.Contour_creator()
+    cont.create_widgets(file_path)
+    del cont
+
 
 
 # ウインドウを作る
 root = tkinter.Tk()
 root.title("data segmentar")
-root.minsize(880, 480)
+root.minsize(1200, 600)
 root.option_add("*font", ["MS Pゴシック", 22])
 
 # キャンバス設定
 canvas = tkinter.Canvas(bg = "black", width = 640, height = 480)
 canvas.place(x=0, y=0)
-canvas.create_rectangle(0, 0, 600, 300, fill="gray")
-img = tkinter.PhotoImage(file = "chap4-1-1.png") #初期画像設定　この行だけだと画像は非表示
+img = tkinter.PhotoImage(file = "") #初期画像設定　この行だけだと画像は非表示
 
 #ファイル選択ボタン表示
 dirSelect_button = tkinter.Button(text = "ファイル選択")
 dirSelect_button.place(x=410, y=133)
 dirSelect_button["command"] = dir_mode
 
+#セグメント開始ボタン
+segStart_button = tkinter.Button(text = "輪郭を囲う")
+segStart_button.place(x=410, y=233)
+segStart_button["command"] = contour_mode
+
 
 
 #オブジェクト設定
 dirselect = dir_select.DirSelect()
+cont = None
+file_path = "chap4-1-1.png"
 
 # ウインドウを表示する
 root.mainloop()
