@@ -9,9 +9,14 @@ class DirSelect:
         fileDir = os.path.abspath(__file__)
         # アナウンス表示
         # tkinter.messagebox.showinfo('ファイル選択','処理するファイルを選択してください')
-        file = tkinter.filedialog.askopenfilename(initialdir = fileDir)
+        self.file_path = tkinter.filedialog.askopenfilename(initialdir = fileDir)
+
+        self.pic_name = self.file_path.rsplit('/', 1)
+        self.pic_name = self.pic_name[1].split('.')
+        self.pic_name = self.pic_name[0]
+
         
-        return file
+        return self.file_path, self.pic_name
 
         
         

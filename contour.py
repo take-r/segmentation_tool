@@ -1,17 +1,21 @@
 import tkinter
 from PIL import Image
 
+import fill_area
+
 class Contour_creator(tkinter.Frame):
     
     # コンストラクタ
-    def __init__(self, master = None):
+    def __init__(self, file_path, pic_name, master = None):
         self.frame = tkinter.Frame.__init__(self, master)
         self.pack()
+        self.file_path = file_path
+        self.pic_name = pic_name
+        print(self.pic_name)
 
     # 各ウィジェットの配置
-    def create_widgets(self, file_path):
-        self.wid, self.heig = Image.open(file_path).size
-        self.file_path = file_path
+    def create_widgets(self):
+        self.wid, self.heig = Image.open(self.file_path).size
 
         self.entry = tkinter.Entry(self)
         self.entry.grid(self.frame, row=0, column=0)
@@ -26,14 +30,15 @@ class Contour_creator(tkinter.Frame):
         self.reset_button.grid(row=2, column=2)
         self.finish_button = tkinter.Button(self, text='セグメントモードを終了する', command=self.finish)
         self.finish_button.grid(row=3, column=2)
-        
+        self.fill_button = tkinter.Button(self, text='塗りつぶす', command=self.fill_polygon)
+        self.fill_button.grid(row=4, column=2)
 
         self.text = tkinter.Text(self, height=20, width=20)
         self.text.grid(row=1, column=1)
 
         self.canvas = tkinter.Canvas(self, height=self.heig, width=self.wid)
         self.canvas.grid(row=1, column=0, rowspan=5) ##rowspan??
-        self.img = tkinter.PhotoImage(file = file_path)
+        self.img = tkinter.PhotoImage(self.frame, file = self.file_path)
         self.canvas.create_image(self.wid/2, self.heig/2, image = self.img)
         self.canvas.bind('<Motion>', self.mouse_pos)
         self.canvas.bind('<Button-1>', self.lclick)
@@ -62,8 +67,6 @@ class Contour_creator(tkinter.Frame):
             # 前の点が存在するか
             if self.pre_x:
                 self.canvas.create_line(self.pre_x, self.pre_y, event.x, event.y, tag="line")
-            else:
-                self.start_x, self.start_y = event.x, event.y
 
             self.pre_x, self.pre_y = event.x, event.y
 
@@ -80,7 +83,7 @@ class Contour_creator(tkinter.Frame):
     
     # 始点と終点を結ぶ
     def tie_points(self):
-        self.canvas.create_line(self.start_x, self.start_y, self.pre_x, self.pre_y)
+        self.canvas.create_line(self.points[0][0], self.points[0][1], self.pre_x, self.pre_y)
 
     # 点を一つ戻す
     def delete_point(self):
@@ -111,12 +114,14 @@ class Contour_creator(tkinter.Frame):
     # セグメントモードを終了する
     def finish(self):
         self.reset_points()
-        self.pack_forget()
+        self.destroy()
 
-
+    # 多角形を塗りつぶす
+    def fill_polygon(self):
+        fillArea = fill_area.FillArea(self.points)
 
 
 if __name__ == '__main__':
-    contour = Contour_creator()
-    contour.create_widgets("chap4-1-1.png")
+    contour = Contour_creator("chap4-1-1.png", "chap4-1-1")
+    contour.create_widgets()
     contour.mainloop()
