@@ -1,21 +1,23 @@
 import tkinter
-from PIL import Image
+from PIL import Image, ImageTk
 
 import fill_area
 
 class Contour_creator(tkinter.Frame):
     
     # コンストラクタ
-    def __init__(self, file_path, pic_name, master = None):
+    def __init__(self, file_info, master = None):
         self.frame = tkinter.Frame.__init__(self, master)
         self.pack()
-        self.file_path = file_path
-        self.pic_name = pic_name
-        print(self.pic_name)
+        self.file_info = file_info #ファイルパス, ファイル名, width, height
+        self.Tdata_wid, self.Tdata_heig = 800, 600
+        self.fillArea = fill_area.FillArea(self.Tdata_wid, self.Tdata_heig)
+        
+        
 
     # 各ウィジェットの配置
     def create_widgets(self):
-        self.wid, self.heig = Image.open(self.file_path).size
+        self.pic_wid, self.pic_heig = self.file_info[2], self.file_info[3]
 
         self.entry = tkinter.Entry(self)
         self.entry.grid(self.frame, row=0, column=0)
@@ -28,7 +30,7 @@ class Contour_creator(tkinter.Frame):
         self.deletePoint_button.grid(row=1, column=2)
         self.reset_button = tkinter.Button(self, text='リセット', command=self.reset_points)
         self.reset_button.grid(row=2, column=2)
-        self.finish_button = tkinter.Button(self, text='セグメントモードを終了する', command=self.finish)
+        self.finish_button = tkinter.Button(self, text='保存して終了する', command=self.finish)
         self.finish_button.grid(row=3, column=2)
         self.fill_button = tkinter.Button(self, text='塗りつぶす', command=self.fill_polygon)
         self.fill_button.grid(row=4, column=2)
@@ -36,10 +38,14 @@ class Contour_creator(tkinter.Frame):
         self.text = tkinter.Text(self, height=20, width=20)
         self.text.grid(row=1, column=1)
 
-        self.canvas = tkinter.Canvas(self, height=self.heig, width=self.wid)
+        self.canvas = tkinter.Canvas(self, width=self.Tdata_wid, height=self.Tdata_heig) #
         self.canvas.grid(row=1, column=0, rowspan=5) ##rowspan??
-        self.img = tkinter.PhotoImage(self.frame, file = self.file_path)
-        self.canvas.create_image(self.wid/2, self.heig/2, image = self.img)
+        #self.img = tkinter.PhotoImage(self.frame, file = self.file_info[0]) #元
+        self.img = Image.open(self.file_info[0]) #
+        self.img = self.img.resize((self.Tdata_wid,self.Tdata_heig))
+        self.img = ImageTk.PhotoImage(self.img)
+        
+        self.canvas.create_image(self.Tdata_wid/2,self.Tdata_heig/2, image = self.img) #
         self.canvas.bind('<Motion>', self.mouse_pos)
         self.canvas.bind('<Button-1>', self.lclick)
 
@@ -57,8 +63,8 @@ class Contour_creator(tkinter.Frame):
 
     # クリック座標の記録＆線つなぐ
     def lclick(self, event):
-        if((event.x >= 0) and (event.x <= self.wid) and
-            (event.y >= 0) and (event.y <= self.heig)):
+        if((event.x >= 0) and (event.x <= self.pic_wid) and
+            (event.y >= 0) and (event.y <= self.pic_heig)):
             self.canvas.create_oval(event.x-2, event.y-2, event.x+2, event.y+2,
                  fill='RED', tag="oval")
             self.text.insert(tkinter.END, str(event.x) + ', ' + str(event.y) + '\n')
@@ -72,11 +78,7 @@ class Contour_creator(tkinter.Frame):
 
     # 座標データを保存する
     def save_text(self):
-        # 元画像の名前を抽出
-        pic_name = self.file_path.rsplit('/', 1)
-        pic_name = pic_name[1].split('.')
-        f = open('{}.txt'.format(pic_name[0]), 'w')
-
+        f = open('{}.txt'.format(self.file_info[1]), 'w')
         all_text = self.text.get('1.0', tkinter.END)
         f.write(all_text)
         f.close()
@@ -92,6 +94,13 @@ class Contour_creator(tkinter.Frame):
         self.text.delete('1.0', tkinter.END)
 
         self.points.pop(-1)
+        if not self.points:
+            self.pre_x, self.pre_y = None, None
+        else:
+            self.pre_x, self.pre_y = self.points[-1]
+
+
+
         for i in range(len(self.points)):
             self.text.insert(tkinter.END, 
                 str(self.points[i][0]) + ', ' + str(self.points[i][1]) + '\n')
@@ -114,14 +123,16 @@ class Contour_creator(tkinter.Frame):
     # セグメントモードを終了する
     def finish(self):
         self.reset_points()
+        self.fillArea.save_Tdata(self.file_info)
         self.destroy()
 
     # 多角形を塗りつぶす
     def fill_polygon(self):
-        fillArea = fill_area.FillArea(self.points)
+        self.fillArea.fill_polygon(self.points, self.file_info)
+        
 
 
 if __name__ == '__main__':
-    contour = Contour_creator("chap4-1-1.png", "chap4-1-1")
+    contour = Contour_creator(["chap4-1-1.png", "chap4-1-1", 320, 320])
     contour.create_widgets()
     contour.mainloop()

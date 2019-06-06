@@ -4,12 +4,13 @@ import contour
 
 #イベント設定
 def dir_mode():
-    global img, file_path, pic_name
-    file_path, pic_name = dirselect.select_mode()
+    global img, file_info
+    file_info = dirselect.select_mode()
 
 # セグメントモード
 def contour_mode():
-    cont = contour.Contour_creator(file_path, pic_name)
+    global file_info
+    cont = contour.Contour_creator(file_info)
     cont.create_widgets()
     del cont
 
@@ -41,8 +42,7 @@ segStart_button["command"] = contour_mode
 #オブジェクト設定
 dirselect = dir_select.DirSelect()
 cont = None
-file_path = "chap4-1-1.png"
-pic_name = None
+file_info = None
 
 # ウインドウを表示する
 root.mainloop()

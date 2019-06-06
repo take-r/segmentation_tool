@@ -1,22 +1,24 @@
 # モジュールのインポート
 import os
 import tkinter
-import tkinter.filedialog, tkinter.messagebox
+import tkinter.filedialog
+from PIL import Image
 
 
 class DirSelect:
     def select_mode(self):
         fileDir = os.path.abspath(__file__)
-        # アナウンス表示
-        # tkinter.messagebox.showinfo('ファイル選択','処理するファイルを選択してください')
         self.file_path = tkinter.filedialog.askopenfilename(initialdir = fileDir)
 
+        # 元画像のファイル名を抽出
         self.pic_name = self.file_path.rsplit('/', 1)
         self.pic_name = self.pic_name[1].split('.')
         self.pic_name = self.pic_name[0]
 
-        
-        return self.file_path, self.pic_name
+        # 画像のサイズ
+        self.wid, self.heig = Image.open(self.file_path).size
+
+        return [self.file_path, self.pic_name, self.wid, self.heig]
 
         
         
