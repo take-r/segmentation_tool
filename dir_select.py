@@ -6,9 +6,13 @@ from PIL import Image
 
 
 class DirSelect:
+    def __init__(self):
+        self.fileDir = os.path.abspath(__file__)
+
     def select_mode(self):
-        fileDir = os.path.abspath(__file__)
-        self.file_path = tkinter.filedialog.askopenfilename(initialdir = fileDir)
+        self.file_path = tkinter.filedialog.askopenfilename(initialdir = self.fileDir)
+        self.fileDir = self.file_path.rsplit("/", 1)
+        self.fileDir = self.fileDir[0]
 
         # 元画像のファイル名を抽出
         self.pic_name = self.file_path.rsplit('/', 1)
