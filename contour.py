@@ -1,5 +1,6 @@
 import tkinter
 from PIL import Image, ImageTk
+from tkinter import messagebox
 
 import fill_area
 
@@ -30,10 +31,12 @@ class Contour_creator(tkinter.Frame):
         self.deletePoint_button.grid(row=1, column=2)
         self.reset_button = tkinter.Button(self, text='リセット', command=self.reset_points)
         self.reset_button.grid(row=2, column=2)
-        self.finish_button = tkinter.Button(self, text='保存して終了する', command=self.finish)
+        self.finish_button = tkinter.Button(self, text='保存して終了する', command=self.save_finish)
         self.finish_button.grid(row=3, column=2)
         self.fill_button = tkinter.Button(self, text='塗りつぶす', command=self.fill_polygon)
         self.fill_button.grid(row=4, column=2)
+        self.fill_button = tkinter.Button(self, text='保存せずに終了する', command=self.finish)
+        self.fill_button.grid(row=5, column=2)
 
         self.text = tkinter.Text(self, height=20, width=20)
         self.text.grid(row=1, column=1)
@@ -63,8 +66,8 @@ class Contour_creator(tkinter.Frame):
 
     # クリック座標の記録＆線つなぐ
     def lclick(self, event):
-        if((event.x >= 0) and (event.x <= self.pic_wid) and
-            (event.y >= 0) and (event.y <= self.pic_heig)):
+        if((event.x >= 0) and (event.x <= self.Tdata_wid) and
+            (event.y >= 0) and (event.y <= self.Tdata_heig)):
             self.canvas.create_oval(event.x-2, event.y-2, event.x+2, event.y+2,
                  fill='RED', tag="oval")
             self.text.insert(tkinter.END, str(event.x) + ', ' + str(event.y) + '\n')
@@ -120,11 +123,19 @@ class Contour_creator(tkinter.Frame):
         self.points.clear()
         self.pre_x, self.pre_y = None, None
     
-    # セグメントモードを終了する
-    def finish(self):
+    # 保存してセグメントモードを終了する
+    def save_finish(self):
         self.reset_points()
         self.fillArea.save_Tdata(self.file_info)
         self.destroy()
+
+    # 保存せずにセグメントモードを終了する
+    def finish(self):
+        # 確認ダイアログを表示
+        ret = messagebox.askyesno('確認', '保存しなくてよろしいですか？')
+        if ret == True:
+            self.reset_points()
+            self.destroy()
 
     # 多角形を塗りつぶす
     def fill_polygon(self):
